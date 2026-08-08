@@ -1,7 +1,7 @@
 export const brand = {
   name: "La Pièce d’Après",
   shortName: "La Pièce d’Après",
-  tagline: "Intérieur sur mesure, espaces qui vous ressemblent.",
+  tagline: "La décoration d’intérieur pensée pour votre façon de vivre.",
 
   logo: {
   primary: "/brand/logo-primary.png",
