@@ -35,8 +35,8 @@ export function SignupCard() {
   const [email,setEmail]=useState(""); const [phone,setPhone]=useState(""); const [password,setPassword]=useState("");
   const [accepted,setAccepted]=useState(false); const [message,setMessage]=useState(""); const [busy,setBusy]=useState(false);
   async function submit(e:FormEvent){e.preventDefault(); if(!accepted){setMessage("Vous devez accepter les conditions d’utilisation.");return;} setBusy(true);setMessage("");
-    try { const supabase=getSupabaseBrowserClient(); const redirectTo=`${window.location.origin}/auth/callback?next=/espace-client`;
-      const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:redirectTo,data:{first_name:firstName,last_name:lastName,phone}}}); if(error)throw error;
+    try { const supabase=getSupabaseBrowserClient();
+      const {error}=await supabase.auth.signUp({email,password,options:{data:{first_name:firstName,last_name:lastName,phone}}}); if(error)throw error;
       setMessage("Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse.");
     } catch(e){setMessage(e instanceof Error?e.message:"Inscription impossible.");} finally{setBusy(false);} }
   return <form className="form-card" onSubmit={submit}>
