@@ -1,0 +1,2 @@
+-- Démonstration facultative. Aucun utilisateur réel n'est créé ici.
+-- Les comptes Auth de démonstration doivent être créés explicitement dans un projet Supabase non-production.
