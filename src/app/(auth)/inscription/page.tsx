@@ -1,1 +1,0 @@
-import { SignupCard } from "@/components/AuthCard"; export default function SignupPage(){return <section className="auth-panel wide"><p className="eyebrow">Nouveau projet</p><h1>Créer votre espace</h1><p>Votre compte personnel centralise les informations liées à votre projet d’intérieur.</p><SignupCard/></section>}
