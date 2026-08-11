@@ -1,1 +1,0 @@
-import { LoginCard } from "@/components/AuthCard"; export default function LoginPage(){return <section className="auth-panel"><p className="eyebrow">Espace client</p><h1>Connexion</h1><p>Retrouvez vos projets, rendez-vous, documents et messages.</p><LoginCard/></section>}
