@@ -11,7 +11,7 @@ const STEPS = [
 
 export function StorySteps() {
   const [visible, setVisible] = useState<boolean[]>(STEPS.map(() => false));
-  const refs = useRef<(HTMLDivElement | null)[]>([]);
+  const refs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
