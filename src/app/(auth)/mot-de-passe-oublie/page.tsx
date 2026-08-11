@@ -1,0 +1,1 @@
+import { ResetRequestCard } from "@/components/AuthCard"; export default function ForgotPage(){return <section className="auth-panel"><p className="eyebrow">Accès</p><h1>Mot de passe oublié</h1><p>Indiquez l’adresse utilisée lors de votre inscription.</p><ResetRequestCard/></section>}
