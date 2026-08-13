@@ -47,12 +47,13 @@ export function SignupCard() {
     <label className="check-row"><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)} /> <span>J’accepte les <Link href="/conditions-utilisation">conditions d’utilisation</Link> et la <Link href="/confidentialite">politique de confidentialité</Link>.</span></label>
     {message && <p className="form-message">{message}</p>}
     <button className="button-primary" disabled={busy}>{busy?"Création…":"Créer mon compte"}</button>
+    <div className="form-links"><Link href="/auth/confirm-signup">J’ai déjà reçu mon code</Link></div>
   </form>;
 }
 
 export function ResetRequestCard(){const[email,setEmail]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.resetPasswordForEmail(email);if(error)throw error;setMessage("Si cette adresse existe, un lien de réinitialisation vient d’être envoyé.");}catch(e){setMessage(e instanceof Error?e.message:"Envoi impossible.");}finally{setBusy(false)}}
- return <form className="form-card" onSubmit={submit}><label>Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} /></label>{message&&<p className="form-message">{message}</p>}<button className="button-primary" disabled={busy}>{busy?"Envoi…":"Recevoir le lien"}</button></form>}
+ async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.resetPasswordForEmail(email);if(error)throw error;setMessage("Si cette adresse existe, un code de réinitialisation vient d’être envoyé.");}catch(e){setMessage(e instanceof Error?e.message:"Envoi impossible.");}finally{setBusy(false)}}
+ return <form className="form-card" onSubmit={submit}><label>Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} /></label>{message&&<p className="form-message">{message}</p>}<button className="button-primary" disabled={busy}>{busy?"Envoi…":"Recevoir le code"}</button><div className="form-links"><Link href="/auth/reset-password">J’ai déjà reçu mon code</Link></div></form>}
 
 export function NewPasswordCard(){const[password,setPassword]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);
  async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.updateUser({password});if(error)throw error;setMessage("Votre mot de passe a été mis à jour. Vous pouvez vous connecter.");}catch(e){setMessage(e instanceof Error?e.message:"Mise à jour impossible.");}finally{setBusy(false)}}
