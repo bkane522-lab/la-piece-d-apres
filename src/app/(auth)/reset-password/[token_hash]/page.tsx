@@ -1,1 +1,1 @@
-
+import { NewPasswordCard } from "@/components/AuthCard"; export default function ResetPage(){return <section className="auth-panel"><p className="eyebrow">Sécurité</p><h1>Nouveau mot de passe</h1><p>Choisissez un mot de passe d’au moins huit caractères.</p><NewPasswordCard/></section>}
