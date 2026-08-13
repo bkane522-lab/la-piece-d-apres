@@ -113,7 +113,31 @@ export function CameraCapture({ projectId }: { projectId: string }) {
       body.append("file", file); body.append("projectId", realProjectId); body.append("bucket", "project-images"); body.append("category", currentShot.key);
       const res = await fetch("/api/upload", { method: "POST", headers: { Authorization: `Bearer ${session.access_token}` }, body });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Envoi impossible.");
+      if (!res.ok) {
+        if (json.error === "Projet inaccessible") {
+          // Le projet a déjà été résolu avant l'ouverture de la caméra : on ne
+          // crée jamais de nouveau brouillon ici. On revérifie seulement la
+          // session et la propriété réelle du projet, puis on retente une fois.
+          const { data: { user: refreshedUser } } = await s.auth.getUser();
+          const { data: stillOwned } = refreshedUser
+            ? await s.from("projects").select("id").eq("id", realProjectId).eq("user_id", refreshedUser.id).maybeSingle()
+            : { data: null };
+          if (refreshedUser && stillOwned) {
+            const retryBody = new FormData();
+            retryBody.append("file", file); retryBody.append("projectId", realProjectId); retryBody.append("bucket", "project-images"); retryBody.append("category", currentShot.key);
+            const retryRes = await fetch("/api/upload", { method: "POST", headers: { Authorization: `Bearer ${session.access_token}` }, body: retryBody });
+            const retryJson = await retryRes.json();
+            if (retryRes.ok) {
+              setCaptured(prev => ({ ...prev, [currentShot.key]: { fileId: retryJson.file.id, url: pendingBlob.url, tag: null } }));
+              vibrate(15);
+              setPhase("tag");
+              return;
+            }
+          }
+          throw new Error("Impossible d’enregistrer cette photo. Réessayez.");
+        }
+        throw new Error(json.error || "Envoi impossible.");
+      }
       setCaptured(prev => ({ ...prev, [currentShot.key]: { fileId: json.file.id, url: pendingBlob.url, tag: null } }));
       vibrate(15);
       setPhase("tag");

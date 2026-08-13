@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { HeroArch } from "@/components/HeroArch";
+import { DoorPhoto } from "@/components/DoorPhoto";
 import { startCaptureFlow } from "@/lib/startCaptureFlow";
 
 type Stage = "closed" | "opening" | "revealed";
@@ -14,7 +14,7 @@ export function HomeHeroMobile() {
   function openDoor() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setStage("opening");
-    window.setTimeout(() => setStage("revealed"), prefersReduced ? 0 : 650);
+    window.setTimeout(() => setStage("revealed"), prefersReduced ? 0 : 450);
   }
 
   async function onPhotographier() {
@@ -25,7 +25,7 @@ export function HomeHeroMobile() {
   return (
     <div className={`home-hero-mobile home-hero-mobile--${stage}`}>
       <div className="home-hero-mobile__arch">
-        <HeroArch intensified={stage !== "closed"} />
+        <DoorPhoto intensified={stage !== "closed"} />
       </div>
 
       {stage !== "revealed" && (
