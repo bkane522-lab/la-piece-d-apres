@@ -51,7 +51,7 @@ export function SignupCard() {
 }
 
 export function ResetRequestCard(){const[email,setEmail]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/reinitialisation-mot-de-passe`});if(error)throw error;setMessage("Si cette adresse existe, un lien de réinitialisation vient d’être envoyé.");}catch(e){setMessage(e instanceof Error?e.message:"Envoi impossible.");}finally{setBusy(false)}}
+ async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.resetPasswordForEmail(email);if(error)throw error;setMessage("Si cette adresse existe, un lien de réinitialisation vient d’être envoyé.");}catch(e){setMessage(e instanceof Error?e.message:"Envoi impossible.");}finally{setBusy(false)}}
  return <form className="form-card" onSubmit={submit}><label>Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} /></label>{message&&<p className="form-message">{message}</p>}<button className="button-primary" disabled={busy}>{busy?"Envoi…":"Recevoir le lien"}</button></form>}
 
 export function NewPasswordCard(){const[password,setPassword]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);

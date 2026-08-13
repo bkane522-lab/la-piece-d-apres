@@ -242,6 +242,11 @@ export function CameraCapture({ projectId }: { projectId: string }) {
             <p className="camera-shell__review-question">Cette photo vous convient ?</p>
           </div>
         )}
+        {phase === "tag" && captured[currentShot.key]?.url && (
+          <div className="camera-shell__review">
+            <img src={captured[currentShot.key].url} alt={currentShot.label} className="camera-shell__preview" />
+          </div>
+        )}
       </div>
 
       {phase === "live" && (
