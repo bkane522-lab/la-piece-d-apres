@@ -20,6 +20,11 @@
   --copper: #C08552;
   --warm-ivory: #F6ECDD;
 
+  --travertine: #EFE4D2;
+  --travertine-deep: #C9AD84;
+  --gold-glow: #E9B863;
+  --amber-deep: #7A4A2A;
+
   --border: rgba(90, 56, 40, 0.12);
   --shadow: 0 18px 50px rgba(33, 27, 24, 0.08);
 }
@@ -363,15 +368,13 @@ select:focus {
 .timeline time{display:block;font-size:.8rem;color:var(--sage);margin:2px 0 6px}
 @media(max-width:800px){.detail-grid{grid-template-columns:1fr}}
 
-/* Hero immersif */
-/* Hero immersif — arche avec profondeur, parallax léger, halo hypnotique */
-.hero-arch{position:relative;height:100%;width:100%}
-.hero-arch__glow{height:100%;width:100%;display:block;position:relative;z-index:1}
-@keyframes archPulse{0%,100%{opacity:.85}50%{opacity:1}}
-.hero-arch__pulse{animation:archPulse 7s ease-in-out infinite;transform-origin:center}
-.hero-arch__room{transform:translateY(calc(var(--parallax,0) * -0.02px));transition:transform .05s linear}
-.hero-arch__vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 30%,transparent 55%,rgba(0,0,0,.22) 100%)}
-@media(prefers-reduced-motion:reduce){.hero-arch__pulse{animation:none}.hero-arch__room{transform:none}}
+/* Hero immersif — porte réelle (photo), glow et zoom au tap */
+.door-photo{position:relative;height:100%;width:100%;overflow:hidden;border-radius:inherit}
+.door-photo__img{object-fit:cover;transition:transform .45s cubic-bezier(.22,.9,.36,1)}
+.door-photo--intense .door-photo__img{transform:scale(1.06)}
+.door-photo__glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 36%,var(--gold-glow) 0%,transparent 62%);opacity:.22;mix-blend-mode:screen;transition:opacity .45s ease;pointer-events:none}
+.door-photo--intense .door-photo__glow{opacity:.5}
+@media(prefers-reduced-motion:reduce){.door-photo__img,.door-photo__glow{transition:none}}
 
 /* Narration progressive */
 .story-steps{display:grid;gap:20px;grid-template-columns:repeat(4,1fr)}
@@ -424,17 +427,15 @@ select:focus {
 .notice-list__link{text-decoration:none;color:inherit;display:block}
 
 /* Écran d'entrée immersif */
-.entry-gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--chocolate);overflow:hidden}
-.entry-gate__arch{position:absolute;inset:0;width:100%;height:100%;opacity:.75;transition:opacity .6s ease,transform .6s ease}
-.entry-gate__glow{animation:archPulse 6s ease-in-out infinite}
-.entry-gate.is-entering .entry-gate__arch{opacity:1;transform:scale(1.06)}
-.entry-gate__content{position:relative;z-index:1;text-align:center;padding:0 32px;transition:transform .6s ease,opacity .6s ease}
+.entry-gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg, var(--travertine) 0%, var(--gold-glow) 46%, var(--amber-deep) 100%);overflow:hidden}
+.entry-gate .door-photo{position:absolute;inset:0;z-index:0}
+.entry-gate__content{position:relative;z-index:1;text-align:center;padding:0 32px;transition:transform .42s cubic-bezier(.22,.9,.36,1),opacity .42s cubic-bezier(.22,.9,.36,1)}
 .entry-gate.is-entering .entry-gate__content{transform:scale(1.04);opacity:.4}
-.entry-gate__content h1{font-family:Georgia,serif;color:var(--warm-ivory);font-size:1.8rem;max-width:360px;margin:0 auto 28px;line-height:1.25}
-@media(prefers-reduced-motion:reduce){.entry-gate__arch,.entry-gate__content,.entry-gate__glow{transition:none;animation:none}}
+.entry-gate__content h1{font-family:Georgia,serif;color:var(--warm-ivory);font-size:1.8rem;max-width:360px;margin:0 auto 28px;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+@media(prefers-reduced-motion:reduce){.entry-gate__content{transition:none}}
 
 /* Caméra plein écran */
-.camera-shell{position:fixed;inset:0;z-index:100;background:#0d0704;color:var(--warm-ivory);display:flex;flex-direction:column}
+.camera-shell{position:fixed;inset:0;z-index:100;background:#1c130d;color:var(--warm-ivory);display:flex;flex-direction:column}
 .camera-shell__overlay-top{padding:18px 20px 10px;text-align:center;position:relative}
 .camera-shell__close{position:absolute;left:16px;top:16px;background:rgba(255,255,255,.12);border:0;color:var(--warm-ivory);width:34px;height:34px;border-radius:50%;font-size:1rem}
 .camera-shell__counter{font-size:.8rem;opacity:.7;margin:0}
@@ -498,23 +499,17 @@ select:focus {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--chocolate);
+  background: linear-gradient(180deg, var(--travertine) 0%, var(--gold-glow) 46%, var(--amber-deep) 100%);
   overflow: hidden;
 }
 
 .home-hero-mobile__arch {
   flex: 0 0 62%;
   position: relative;
-  transition: transform .6s ease;
+  transition: transform .42s cubic-bezier(.22,.9,.36,1);
 }
 
-.home-hero-mobile--opening .home-hero-mobile__arch,
-.home-hero-mobile--revealed .home-hero-mobile__arch {
-  transform: scale(1.08);
-}
-
-.hero-arch--intense .hero-arch__glow { opacity: 1; }
-.hero-arch--intense .hero-arch__pulse { animation-duration: 3s; }
+.hero-desktop-arch .door-photo{border-radius:20px}
 
 .home-hero-mobile__intro,
 .home-hero-mobile__choices {
@@ -568,8 +563,11 @@ select:focus {
 .camera-shell--loading{align-items:center;justify-content:center;color:var(--warm-ivory);font-weight:600}
 .camera-shell__live{position:relative;width:100%;max-width:480px;aspect-ratio:3/4;border-radius:20px;overflow:hidden}
 .camera-shell__video{width:100%;height:100%;object-fit:cover;background:#000}
-.camera-shell__guide{position:absolute;inset:14px;border:1.5px dashed rgba(255,255,255,.35);border-radius:14px;pointer-events:none}
-.camera-shell__floating-hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:.82rem;color:rgba(255,255,255,.85);text-shadow:0 1px 4px rgba(0,0,0,.6);margin:0}
+.camera-shell__guide{position:absolute;inset:16px;border:1.5px solid rgba(233,184,99,.55);border-radius:18px;pointer-events:none}
+.camera-shell__guide::before,.camera-shell__guide::after{content:"";position:absolute;width:22px;height:22px;border-color:var(--gold-glow)}
+.camera-shell__guide::before{top:-1.5px;left:-1.5px;border-top:2.5px solid var(--gold-glow);border-left:2.5px solid var(--gold-glow);border-radius:18px 0 0 0}
+.camera-shell__guide::after{bottom:-1.5px;right:-1.5px;border-bottom:2.5px solid var(--gold-glow);border-right:2.5px solid var(--gold-glow);border-radius:0 0 18px 0}
+.camera-shell__floating-hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:.82rem;color:var(--warm-ivory);text-shadow:0 1px 4px rgba(0,0,0,.6);margin:0}
 .camera-shell__review{width:100%;max-width:480px;text-align:center}
 .camera-shell__review-question{margin-top:14px;font-weight:600;color:var(--warm-ivory)}
 .camera-shell__controls-row{display:flex;align-items:center;justify-content:center;gap:28px}
