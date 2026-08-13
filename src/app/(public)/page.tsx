@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { brand } from "@/config/brand";
 import { services } from "@/config/project";
-import { HeroArch } from "@/components/HeroArch";
+import { DoorPhoto } from "@/components/DoorPhoto";
 import { HomeHeroMobile } from "@/components/HomeHeroMobile";
 import { StorySteps } from "@/components/StorySteps";
 
@@ -59,7 +59,7 @@ export default function Home() {
           </div>
 
           <div className="relative mx-auto aspect-[3/4] w-full max-w-sm hero-desktop-arch">
-            <HeroArch />
+            <DoorPhoto />
           </div>
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--chocolate)] via-transparent to-transparent" />
