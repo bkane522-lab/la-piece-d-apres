@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function LoginCard() {
@@ -9,6 +9,13 @@ export function LoginCard() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("password") === "updated") {
+      setMessage("Mot de passe modifié. Vous pouvez vous connecter avec votre nouveau mot de passe.");
+    }
+  }, []);
 
   async function submit(e: FormEvent) {
     e.preventDefault(); setBusy(true); setMessage("");
@@ -51,10 +58,115 @@ export function SignupCard() {
   </form>;
 }
 
-export function ResetRequestCard(){const[email,setEmail]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.resetPasswordForEmail(email);if(error)throw error;setMessage("Si cette adresse existe, un code de réinitialisation vient d’être envoyé.");}catch(e){setMessage(e instanceof Error?e.message:"Envoi impossible.");}finally{setBusy(false)}}
- return <form className="form-card" onSubmit={submit}><label>Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} /></label>{message&&<p className="form-message">{message}</p>}<button className="button-primary" disabled={busy}>{busy?"Envoi…":"Recevoir le code"}</button><div className="form-links"><Link href="/auth/reset-password">J’ai déjà reçu mon code</Link></div></form>}
+export function ResetRequestCard() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
 
-export function NewPasswordCard(){const[password,setPassword]=useState("");const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);
- async function submit(e:FormEvent){e.preventDefault();setBusy(true);try{const s=getSupabaseBrowserClient();const{error}=await s.auth.updateUser({password});if(error)throw error;setMessage("Votre mot de passe a été mis à jour. Vous pouvez vous connecter.");}catch(e){setMessage(e instanceof Error?e.message:"Mise à jour impossible.");}finally{setBusy(false)}}
- return <form className="form-card" onSubmit={submit}><label>Nouveau mot de passe<input type="password" minLength={8} required value={password} onChange={e=>setPassword(e.target.value)} /></label>{message&&<p className="form-message">{message}</p>}<button className="button-primary" disabled={busy}>{busy?"Mise à jour…":"Enregistrer"}</button></form>}
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
+      if (error) throw error;
+
+      // Le reset utilise volontairement un OTP saisi dans l’app.
+      // Aucun clic dans l’e-mail n’est nécessaire : Brevo peut donc
+      // transporter le message sans pouvoir casser le parcours avec son tracking.
+      window.sessionStorage.setItem("lpda_recovery_email", normalizedEmail);
+      window.location.replace("/auth/reset-password");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Envoi impossible.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="form-card" onSubmit={submit}>
+      <label>
+        Email
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+        />
+      </label>
+      <p className="form-help">Vous recevrez un code à saisir directement dans l’application.</p>
+      {message && <p className="form-message">{message}</p>}
+      <button className="button-primary" disabled={busy}>
+        {busy ? "Envoi…" : "Recevoir le code"}
+      </button>
+      <div className="form-links">
+        <Link href="/auth/reset-password">J’ai déjà reçu mon code</Link>
+      </div>
+    </form>
+  );
+}
+
+export function NewPasswordCard() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setMessage("");
+    if (password !== confirmPassword) {
+      setMessage("Les deux mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+
+      // Après une récupération, on ferme la session temporaire et on force
+      // une reconnexion avec le nouveau mot de passe.
+      await supabase.auth.signOut();
+      window.sessionStorage.removeItem("lpda_recovery_email");
+      window.location.replace("/connexion?password=updated");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Mise à jour impossible.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="form-card" onSubmit={submit}>
+      <label>
+        Nouveau mot de passe
+        <input
+          type="password"
+          minLength={8}
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="new-password"
+        />
+      </label>
+      <label>
+        Confirmer le mot de passe
+        <input
+          type="password"
+          minLength={8}
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          autoComplete="new-password"
+        />
+      </label>
+      {message && <p className="form-message">{message}</p>}
+      <button className="button-primary" disabled={busy}>
+        {busy ? "Mise à jour…" : "Enregistrer"}
+      </button>
+    </form>
+  );
+}

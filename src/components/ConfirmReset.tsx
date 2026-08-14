@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function ConfirmReset() {
@@ -12,47 +12,62 @@ export function ConfirmReset() {
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
+  useEffect(() => {
+    const remembered = window.sessionStorage.getItem("lpda_recovery_email");
+    if (remembered) setEmail(remembered);
+  }, []);
+
   async function confirm(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setMessage("");
+
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedToken = token.replace(/\s+/g, "").trim();
       const supabase = getSupabaseBrowserClient();
       const { error } = await supabase.auth.verifyOtp({
-        email: email.trim(),
-        token: token.replace(/\s+/g, "").trim(),
+        email: normalizedEmail,
+        token: normalizedToken,
         type: "recovery",
       });
       if (error) throw error;
+
+      window.sessionStorage.setItem("lpda_recovery_email", normalizedEmail);
       setSuccess(true);
-      setMessage("Code vérifié. Redirection…");
-      window.setTimeout(() => window.location.replace("/reinitialisation-mot-de-passe"), 700);
+      setMessage("Code vérifié. Ouverture de l’écran sécurisé…");
+      window.setTimeout(() => {
+        window.location.replace("/reinitialisation-mot-de-passe");
+      }, 350);
     } catch (err) {
       const raw = err instanceof Error ? err.message : "";
       if (/expired/i.test(raw)) {
-        setMessage("Ce code a expiré. Utilisez le bouton « Renvoyer un code » ci-dessous.");
-      } else if (/invalid|token/i.test(raw)) {
-        setMessage("Code invalide. Vérifiez le code reçu dans votre dernier e-mail.");
+        setMessage("Ce code a expiré. Demandez-en un nouveau ci-dessous.");
+      } else if (/invalid|token|otp/i.test(raw)) {
+        setMessage("Code invalide. Utilisez le code du dernier e-mail reçu.");
       } else {
         setMessage(raw || "Vérification impossible pour le moment.");
       }
-    } finally {
       setBusy(false);
     }
   }
 
   async function resend() {
-    if (!email.trim()) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
       setMessage("Saisissez d’abord votre adresse e-mail.");
       return;
     }
+
     setResending(true);
     setMessage("");
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
       if (error) throw error;
-      setMessage("Un nouveau code vient d’être envoyé. Utilisez uniquement le dernier e-mail reçu.");
+      window.sessionStorage.setItem("lpda_recovery_email", normalizedEmail);
+      setToken("");
+      setMessage("Un nouveau code vient d’être envoyé. Utilisez uniquement le dernier code reçu.");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Impossible de renvoyer le code.");
     } finally {
@@ -64,20 +79,26 @@ export function ConfirmReset() {
     <main className="account-page">
       <div className="shell narrow">
         <p className="eyebrow">Sécurité</p>
-        <h1>Réinitialiser votre mot de passe</h1>
+        <h1>Entrez le code reçu</h1>
         <p>
-          Saisissez votre adresse e-mail et le code reçu. Cette méthode évite les liens qui peuvent être
-          modifiés en cours de route par certains services d’envoi d’e-mail.
+          Aucun lien à ouvrir : saisissez simplement le code reçu par e-mail. Cette méthode évite les
+          problèmes de liens réécrits par les services de messagerie.
         </p>
 
         <form className="form-card" onSubmit={confirm}>
           <label>
             Adresse e-mail
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
           </label>
 
           <label>
-            Code reçu par e-mail
+            Code de réinitialisation
             <input
               inputMode="numeric"
               required
@@ -101,7 +122,7 @@ export function ConfirmReset() {
           )}
 
           <div className="form-links">
-            <Link href="/connexion">Se connecter</Link>
+            <Link href="/connexion">Retour à la connexion</Link>
           </div>
         </form>
       </div>
